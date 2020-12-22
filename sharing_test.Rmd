@@ -347,16 +347,19 @@ Compare two models with ANOVA, the second one has smaller residual sum of square
 anova(mdl.1, mdl.2)
 ```
 
-Note that we can also do modelling using generalized linear models, [GLMs](https://www.guru99.com/r-generalized-linear-model.html). Here we remove log-transform as the we use binomial distri
+Note that we can also do modelling using generalized linear models, [GLMs](https://www.guru99.com/r-generalized-linear-model.html). Here we remove log-transform as the we use binomial distribution
 
 ```{r}
-mdl.glm <- glm(recaptureProb ~ donor.quantile + clonesRecepient + clonesDonor,
-               family = "poisson",
+mdl.glm <- glm(found ~ donor.quantile + clones.don + clones.rec + dli,
+               family = "binomial",
                data = data %>%
-                 mutate(found = ifelse(is.na(rec)))
-                        
-                        
-                        )
+                 filter(donor.quantile != "Missing") %>%
+                 mutate(found = ifelse(is.na(cloneCount.rec), 0, 1)) %>%
+                 merge(data.coord %>% 
+                         select(sample.id, clones.don, clones.rec, dli) %>%
+                         unique))
+
+summary(mdl.glm)
 ```
 
 Bayes modelling
